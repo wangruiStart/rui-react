@@ -18,12 +18,13 @@
 	},
 	"plugins": ["@typescript-eslint", "prettier"],
 	"rules": {
-		"prettier/prettier": "error",
+		"prettier/prettier": ["error", { "printWidth": 80 }],
 		"no-case-declarations": "off",
 		"no-constant-condition": "off",
 		"@typescript-eslint/ban-ts-comment": "off",
 		"@typescript-eslint/no-unused-vars": "off",
 		"@typescript-eslint/no-var-requires": "off",
+		"@typescript-eslint/no-explicit-any": "off",
 		"no-unused-vars": "off"
 	}
 }
