@@ -6,7 +6,6 @@ import { NoFlags, Flags } from './fiberFlags';
 export class FiberNode {
 	tag: WorkTag;
 	key: Key;
-	pendingProps: Props;
 	// 如果是HostComponent <div></div> 则，stateNode保存的就是div这个DOM
 	stateNode: any;
 	// 如果是function component则tag是FunctionComponent，type则是 function本身 () => {};
@@ -23,6 +22,9 @@ export class FiberNode {
 	index: number = 0;
 	ref: Ref;
 
+	// 工作之前的props
+	pendingProps: Props;
+	// 工作之后的props
 	memoizedProps: Props | null;
 
 	// 指向另一科fiberNode树对应的节点
