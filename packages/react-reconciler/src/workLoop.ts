@@ -2,19 +2,14 @@
 
 import { beginWork } from './beginWork';
 import { completeWork } from './completeWork';
-import { FiberNode } from './fiber';
+import { FiberNode, FiberRootNode, createWorkInProgress } from './fiber';
+import { HostRoot } from './workTags';
 
 // 指向当前正在工作的节点
 let workInProgress: FiberNode | null = null;
 
-function prepareFreshStack(fiber: FiberNode) {
-	workInProgress = fiber;
-}
-
-function workLoop() {
-	while (workInProgress !== null) {
-		performUnitOfWork(workInProgress);
-	}
+function prepareFreshStack(root: FiberRootNode) {
+	workInProgress = createWorkInProgress(root.current, {});
 }
 
 // 遍历兄弟节点
@@ -39,7 +34,7 @@ function completeUnitOfWork(fiber: FiberNode) {
  * @return {void} This function does not return a value.
  */
 function performUnitOfWork(fiber: FiberNode) {
-	const next = beginWork(fiber);
+	const next = beginWork(fiber); // 返回子fiber或者null
 	fiber.memoizedProps = fiber.pendingProps;
 
 	if (next === null) {
@@ -51,8 +46,13 @@ function performUnitOfWork(fiber: FiberNode) {
 	}
 }
 
-//TODO: 入口方法，谁调用?
-function renderRoot(root: FiberNode) {
+function workLoop() {
+	while (workInProgress !== null) {
+		performUnitOfWork(workInProgress);
+	}
+}
+
+function renderRoot(root: FiberRootNode) {
 	// 初始化
 	prepareFreshStack(root);
 
@@ -66,4 +66,29 @@ function renderRoot(root: FiberNode) {
 			workInProgress = null;
 		}
 	} while (true);
+}
+/**
+ * 查找给定fiber节点的根节点。
+ *
+ * @param {FiberNode} fiber - 要开始搜索的纤维节点。
+ * @return {Node | null} - 如果找到则返回根节点即FiberRootNode，否则返回null。
+ */
+
+function markUpdateFromFiberToRoot(fiber: FiberNode) {
+	let node = fiber;
+	let parent = fiber.return;
+	while (parent !== null) {
+		node = parent;
+		parent = node.return;
+	}
+	if (node.tag === HostRoot) {
+		return node.stateNode;
+	}
+	return null;
+}
+
+export function scheduleUpdateOnFiber(fiber: FiberNode) {
+	const root = markUpdateFromFiberToRoot(fiber);
+	renderRoot(root);
+	// 调度功能
 }

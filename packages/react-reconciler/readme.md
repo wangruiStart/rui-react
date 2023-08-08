@@ -50,3 +50,29 @@ Deletion Placement
 这是个递归的过程，存在递、归两个阶段：
 1. 递：对应beginWork
 2. 归：对应completeWork
+
+## 更新
+
+常见的触发更新的方式：
+* ReactDOM.createRootO.render（或老版的ReacpOM.render)
+* this.setState
+* useState的dispatch方法
+我们希望实现一套统一的更新机制，他的特点是：
+* 兼容上述触发更新的方式
+* 方便后续扩展（优先级机制..）
+
+### 更新机制的组成部分
+* 代表更新的数据结构 -- update
+* 代表消费的数据结构 -- updateQueue
+
+![Alt text](image.png)
+
+接下来要做的工作：
+* 实现mount时调用的API
+* 将API接入更新机制
+
+需要考虑的事情:
+* 更新可能发生于任意组件，而更新的流程是从根节点递归的
+* 需要一个统一的根节点保存通用信息
+
+![Alt text](image-1.png)

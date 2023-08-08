@@ -1,4 +1,5 @@
 import { Key, Props, Ref } from 'shared/ReactTypes';
+import { Container } from 'hostConfig';
 import { WorkTag } from './workTags';
 import { NoFlags, Flags } from './fiberFlags';
 
@@ -26,9 +27,11 @@ export class FiberNode {
 	pendingProps: Props;
 	// 工作之后的props
 	memoizedProps: Props | null;
-
+	memoizedState: any;
 	// 指向另一科fiberNode树对应的节点
 	alternate: FiberNode | null;
+
+	updateQueue: unknown;
 
 	flags: Flags;
 
@@ -47,8 +50,51 @@ export class FiberNode {
 		// 作为工作单元
 		this.pendingProps = pendingProps;
 		this.memoizedProps = null;
+		this.updateQueue = null;
 
 		this.alternate = null;
 		this.flags = NoFlags;
 	}
 }
+
+// ReactDom.createRoot构建的根节点。其
+// current指针指向hostRootFiber。同时hostRootFiber的stateNode指向FiberRootNode
+export class FiberRootNode {
+	container: Container; // 宿主环境挂在的节点。即createRoot的参数
+	current: FiberNode;
+	finishedWork: FiberNode | null;
+
+	constructor(container: Container, hostRootFiber: FiberNode) {
+		this.container = container;
+		this.current = hostRootFiber;
+		hostRootFiber.stateNode = this;
+		this.finishedWork = null;
+	}
+}
+
+export const createWorkInProgress = (
+	current: FiberNode,
+	pendingProps: Props
+): FiberNode => {
+	let workInProgressNode = current.alternate;
+
+	if (workInProgressNode === null) {
+		// 首屏渲染场景下 mount场景
+		workInProgressNode = new FiberNode(current.tag, pendingProps, current.key);
+		workInProgressNode.stateNode = current.stateNode;
+
+		workInProgressNode.alternate = current;
+		current.alternate = workInProgressNode;
+	} else {
+		// update场景
+		workInProgressNode.pendingProps = pendingProps;
+		workInProgressNode.flags = NoFlags;
+	}
+
+	workInProgressNode.tag = current.type;
+	workInProgressNode.updateQueue = current.updateQueue;
+	workInProgressNode.child = current.child;
+	workInProgressNode.memoizedState = current.memoizedState;
+
+	return workInProgressNode;
+};
