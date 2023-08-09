@@ -1,6 +1,6 @@
-import { Key, Props, Ref } from 'shared/ReactTypes';
+import { Key, Props, ReactElementType, Ref } from 'shared/ReactTypes';
 import { Container } from 'hostConfig';
-import { WorkTag } from './workTags';
+import { FunctionComponent, HostComponent, WorkTag } from './workTags';
 import { NoFlags, Flags } from './fiberFlags';
 
 // 深度优先遍历
@@ -92,10 +92,32 @@ export const createWorkInProgress = (
 		workInProgressNode.flags = NoFlags;
 	}
 
-	workInProgressNode.tag = current.type;
+	workInProgressNode.type = current.type;
 	workInProgressNode.updateQueue = current.updateQueue;
 	workInProgressNode.child = current.child;
 	workInProgressNode.memoizedState = current.memoizedState;
 
 	return workInProgressNode;
 };
+
+/**
+ * Creates a FiberNode from a React element.
+ *
+ * @param {ReactElementType} element - The React element to create a FiberNode from.
+ * @return {FiberNode} The created FiberNode.
+ */
+export function createFiberFromElement(element: ReactElementType): FiberNode {
+	const { type, key, props } = element;
+
+	let fiberTag: WorkTag = FunctionComponent;
+	if (typeof type === 'string') {
+		// <div /> type: 'div';
+		fiberTag = HostComponent;
+	} else if (typeof type !== 'function' && __DEV__) {
+		console.warn('Unknown element type:', type);
+	}
+
+	const fiber = new FiberNode(fiberTag, props, key);
+	fiber.type = type;
+	return fiber;
+}

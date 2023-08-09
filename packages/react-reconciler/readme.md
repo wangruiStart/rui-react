@@ -26,7 +26,7 @@ FiberNode {type: 'div'}
 Deletion Placement
 ```
 
-当所有React Element比t较完后，会生成一棵fberNode树，一共会存在两棵fiberNode树：
+当所有React Element比t较完后，会生成一棵`fiberNode`树，一共会存在两棵`fiberNode`树：
 
 1. current：与视图中真实Ul对应的fiberNode树
 2. workInProgress：触发更新后，正在reconciler中计算的fiberNode树
@@ -43,36 +43,122 @@ Deletion Placement
 
 ```jsx
 <Card>
-	<h3>你好</h3>
-	<p>p</p>
+ <h3>你好</h3>
+ <p>p</p>
 </Card>
 ```
+
 这是个递归的过程，存在递、归两个阶段：
+
 1. 递：对应beginWork
 2. 归：对应completeWork
 
 ## 更新
 
 常见的触发更新的方式：
-* ReactDOM.createRootO.render（或老版的ReacpOM.render)
-* this.setState
-* useState的dispatch方法
-我们希望实现一套统一的更新机制，他的特点是：
-* 兼容上述触发更新的方式
-* 方便后续扩展（优先级机制..）
+
+- ReactDOM.createRoot().render（或老版的ReactDOM.render)
+- this.setState
+- useState的dispatch方法
+  我们希望实现一套统一的更新机制，他的特点是：
+- 兼容上述触发更新的方式
+- 方便后续扩展（优先级机制..）
 
 ### 更新机制的组成部分
-* 代表更新的数据结构 -- update
-* 代表消费的数据结构 -- updateQueue
+
+- 代表更新的数据结构 -- update
+- 代表消费的数据结构 -- updateQueue
 
 ![Alt text](image.png)
 
 接下来要做的工作：
-* 实现mount时调用的API
-* 将API接入更新机制
+
+- 实现mount时调用的API
+- 将API接入更新机制
 
 需要考虑的事情:
-* 更新可能发生于任意组件，而更新的流程是从根节点递归的
-* 需要一个统一的根节点保存通用信息
+
+- 更新可能发生于任意组件，而更新的流程是从根节点递归的
+- 需要一个统一的根节点保存通用信息
 
 ![Alt text](image-1.png)
+
+## mount更新流程
+
+目的：
+
+- 生成workInProgress fiberNode树
+- 标记副作用flags
+
+更新流程的步骤:
+
+- 递 beginWork
+- 归 completeWork
+
+### beginWork
+
+对于如下结构的reactElement:
+
+```jsx
+<A>
+ <B>你好</B>
+</A>
+```
+
+当进入A的beginWork时，通过对比B的current fiberNode 与B的 reactElement 生成B对应的workInProgress fiberNode。
+
+在此过程中最多会标记2类与**结构变化**相关的flags:
+
+- Placement
+  插入：a -> ab 移动: abc -> bca
+- ChildDeletion
+  删除: ul>li*3 -> ul>li*1
+
+此过程不包含于属性变化相关的flag:
+
+- Update
+
+```jsx
+<img title="🐔" /> -> <img title="你太美" />
+```
+
+### 实现与Host相关节点的beginWork
+
+首先，为开发环境增加**DEV**标记, 方便Dev包打印更多信息:
+
+```sh
+pnpm i -d -w @rollup/plugin-replace
+```
+
+`HostRoot`的`beginWork`工作流程：
+
+1. 计算状态的最新值
+2. 创建子fiberNode
+
+`HostComponent`的beginWork工作流程:
+
+1. 创建子fiberNode
+
+`HostText`没有beginWork工作流程（因为`HostText`没有子节点）。如
+`<p> 唱跳Rap </p>`
+
+#### beginWork性能优化策略
+
+考虑如下结构的reactElement:
+
+```html
+<div>
+ <p>练习时长</p>
+ <span>两年半</span>
+</div>
+```
+
+理论上mount流程完毕后包含的flags:
+
+- 两年半 Placement
+- span Placement
+- 练习时长 Placement
+- P Placement
+- div Placement
+
+相较于执行5次Placement，我们可以构建好**离屏DOM树**后，对div执行1次Placement操作。

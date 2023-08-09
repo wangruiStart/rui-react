@@ -61,7 +61,9 @@ function renderRoot(root: FiberRootNode) {
 			workLoop();
 			break;
 		} catch (e) {
-			console.warn('workLoop发生错误', e);
+			if (__DEV__) {
+				console.warn('workLoop发生错误', e);
+			}
 			// 重置指针
 			workInProgress = null;
 		}

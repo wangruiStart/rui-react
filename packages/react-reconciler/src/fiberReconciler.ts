@@ -20,7 +20,7 @@ export function createContainer(container: any) {
 
 // ReactDom.createRoot(rootElement).render(<App />), render方法会调用该方法
 export function updateContainer(
-	element: ReactElementType | null,
+	element: ReactElementType | null, // render方法的参数，即 <App/>
 	root: FiberRootNode
 ) {
 	const hostRootFiber = root.current;
