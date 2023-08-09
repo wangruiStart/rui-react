@@ -59,6 +59,7 @@ export class FiberNode {
 
 // ReactDom.createRoot构建的根节点。其
 // current指针指向hostRootFiber。同时hostRootFiber的stateNode指向FiberRootNode
+// ReactDom.createRoot(rootElement).render(<App />)
 export class FiberRootNode {
 	container: Container; // 宿主环境挂在的节点。即createRoot的参数
 	current: FiberNode;

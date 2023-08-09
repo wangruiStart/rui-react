@@ -73,8 +73,7 @@ function renderRoot(root: FiberRootNode) {
  * @param {FiberNode} fiber - 要开始搜索的纤维节点。
  * @return {Node | null} - 如果找到则返回根节点即FiberRootNode，否则返回null。
  */
-
-function markUpdateFromFiberToRoot(fiber: FiberNode) {
+function markUpdateFromFiberToRoot(fiber: FiberNode): FiberRootNode | null {
 	let node = fiber;
 	let parent = fiber.return;
 	while (parent !== null) {
@@ -88,7 +87,7 @@ function markUpdateFromFiberToRoot(fiber: FiberNode) {
 }
 
 export function scheduleUpdateOnFiber(fiber: FiberNode) {
-	const root = markUpdateFromFiberToRoot(fiber);
+	const root = markUpdateFromFiberToRoot(fiber) as FiberRootNode;
 	renderRoot(root);
 	// 调度功能
 }

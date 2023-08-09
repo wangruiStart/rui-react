@@ -10,6 +10,7 @@ import { HostRoot } from './workTags';
 import { scheduleUpdateOnFiber } from './workLoop';
 
 // ReactDom.createRoot方法内部会调用该方法
+
 export function createContainer(container: any) {
 	const hostRootFiber = new FiberNode(HostRoot, {}, null);
 	const root = new FiberRootNode(container, hostRootFiber);

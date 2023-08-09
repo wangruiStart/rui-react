@@ -20,15 +20,15 @@ export const createUpdate = <State>(action: Action<State>): Update<State> => {
 /**
 + * 创建一个更新队列。
 + *
-+ * @template Action - 动作的类型。
++ * @template State - 动作的类型。
 + * @returns {UpdateQueue<Action>} - 创建的更新队列。
 + */
-export const createUpdateQueue = <Action>() => {
+export const createUpdateQueue = <State>() => {
 	return {
 		shared: {
 			pending: null
 		}
-	} as UpdateQueue<Action>;
+	} as UpdateQueue<State>;
 };
 
 /**
@@ -37,9 +37,9 @@ export const createUpdateQueue = <Action>() => {
 + * @param {UpdateQueue<Action>} UpdateQueue - 要加入更新的更新队列。
 + * @param {Update<Action>} update - 要加入的更新。
 + */
-export const enqueueUpdate = <Action>(
-	UpdateQueue: UpdateQueue<Action>,
-	update: Update<Action>
+export const enqueueUpdate = <State>(
+	UpdateQueue: UpdateQueue<State>,
+	update: Update<State>
 ) => {
 	UpdateQueue.shared.pending = update;
 };
