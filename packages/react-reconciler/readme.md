@@ -43,8 +43,8 @@ Deletion Placement
 
 ```jsx
 <Card>
- <h3>你好</h3>
- <p>p</p>
+	<h3>你好</h3>
+	<p>p</p>
 </Card>
 ```
 
@@ -101,7 +101,7 @@ Deletion Placement
 
 ```jsx
 <A>
- <B>你好</B>
+	<B>你好</B>
 </A>
 ```
 
@@ -148,8 +148,8 @@ pnpm i -d -w @rollup/plugin-replace
 
 ```html
 <div>
- <p>练习时长</p>
- <span>两年半</span>
+	<p>练习时长</p>
+	<span>两年半</span>
 </div>
 ```
 
@@ -162,3 +162,15 @@ pnpm i -d -w @rollup/plugin-replace
 - div Placement
 
 相较于执行5次Placement，我们可以构建好**离屏DOM树**后，对div执行1次Placement操作。
+
+## completeWork
+
+需要解决的问题:
+
+- 对于Host类型的fiberNode: 构建离屏DOM树
+- 标记Update flag (TODO)
+
+## completeWork性能优化策略
+
+flags分布在不同的fiberNode中，如何快速找到他们？
+答案： 利用completeWork向上遍历(归)的流程，将子fiberNode 的flags 冒泡到父fiberNode;

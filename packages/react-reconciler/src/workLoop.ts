@@ -68,6 +68,13 @@ function renderRoot(root: FiberRootNode) {
 			workInProgress = null;
 		}
 	} while (true);
+
+	// 流程结束后生成新的workInProgress Fiber树， 位于root.current.alternate;
+	// root current 指向hostRootFiber;
+	const finishedWork = root.current.alternate;
+	root.finishedWork = finishedWork;
+	// reconciler 阶段结束，进入commit阶段
+	// commitRoot(root);
 }
 /**
  * 查找给定fiber节点的根节点。
