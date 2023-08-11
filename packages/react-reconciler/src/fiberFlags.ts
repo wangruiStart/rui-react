@@ -4,3 +4,5 @@ export const Update = 0b0001000; // 更新
 export const ChildDeletion = 0b0010000; // 删除子节点
 
 export type Flags = number;
+
+export const MutationMask = Placement | Update | ChildDeletion;

@@ -43,8 +43,8 @@ Deletion Placement
 
 ```jsx
 <Card>
-	<h3>你好</h3>
-	<p>p</p>
+ <h3>你好</h3>
+ <p>p</p>
 </Card>
 ```
 
@@ -101,7 +101,7 @@ Deletion Placement
 
 ```jsx
 <A>
-	<B>你好</B>
+ <B>你好</B>
 </A>
 ```
 
@@ -148,8 +148,8 @@ pnpm i -d -w @rollup/plugin-replace
 
 ```html
 <div>
-	<p>练习时长</p>
-	<span>两年半</span>
+ <p>练习时长</p>
+ <span>两年半</span>
 </div>
 ```
 
@@ -174,3 +174,30 @@ pnpm i -d -w @rollup/plugin-replace
 
 flags分布在不同的fiberNode中，如何快速找到他们？
 答案： 利用completeWork向上遍历(归)的流程，将子fiberNode 的flags 冒泡到父fiberNode;
+
+## 第六课 初探ReactDOM
+
+react 内部分为三个阶段
+
+- schedule阶段
+- render阶段 (beginWork completeWork)
+- commit 阶段 （commitWork）
+  - beforeMutation 阶段
+  - mutation阶段
+  - layout阶段
+
+当前commit阶段要执行的任务
+
+1. fiber树的切换
+2. 执行Placement对应的操作
+
+需要注意的问题是：
+考虑如下jsx,如果span 含有flag,该如何找到它：
+
+```jsx
+<App>
+ <div>
+  <span>这是文字内容</span>
+ </div>
+</App>
+```
