@@ -84,6 +84,7 @@ export const jsxDEV = (type: ElementType, config: any) => {
 			}
 			continue;
 		}
+
 		if ({}.hasOwnProperty.call(config, prop)) {
 			props[prop] = value;
 		}
