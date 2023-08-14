@@ -8,7 +8,12 @@ import {
 	appendInitialChild
 } from 'hostConfig';
 import { FiberNode } from './fiber';
-import { HostComponent, HostRoot, HostText } from './workTags';
+import {
+	FunctionComponent,
+	HostComponent,
+	HostRoot,
+	HostText
+} from './workTags';
 import { NoFlags } from './fiberFlags';
 
 // 返回子fiber或者null
@@ -41,6 +46,9 @@ export const completeWork = (
 			bubbleProperties(workInProgressFiberNode);
 			return null;
 		case HostRoot:
+			bubbleProperties(workInProgressFiberNode);
+			return null;
+		case FunctionComponent:
 			bubbleProperties(workInProgressFiberNode);
 			return null;
 		default:

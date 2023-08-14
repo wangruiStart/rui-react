@@ -201,3 +201,17 @@ react 内部分为三个阶段
  </div>
 </App>
 ```
+
+## 7. 初探FC与实现
+
+Function Component 需要考虑的问题:
+
+- 如何支持FC
+- 如何组织Hooks
+
+### 如何支持FC
+
+FC的工作同样植根于
+
+- beginWork
+- completeWork

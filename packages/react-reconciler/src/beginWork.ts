@@ -3,8 +3,14 @@
 import { ReactElementType } from 'shared/ReactTypes';
 import { FiberNode } from './fiber';
 import { UpdateQueue, processUpdateQueue } from './updateQueue';
-import { HostComponent, HostRoot, HostText } from './workTags';
+import {
+	FunctionComponent,
+	HostComponent,
+	HostRoot,
+	HostText
+} from './workTags';
 import { mountChildFibers, reconcilerChildFibers } from './childFibers';
+import { renderWithHooks } from './fiberHooks';
 
 /**
  * 传入当前正在操作的fiberNode，生成子fiberNode或者null
@@ -21,6 +27,14 @@ export const beginWork = (
 			return updateHostRoot(workInProgressFiberNode);
 		case HostComponent: // 原生DOM节点，如<div />就是HostComponent
 			return updateHostComponent(workInProgressFiberNode);
+		case FunctionComponent:
+			if (__DEV__) {
+				console.warn(
+					'Function components cannot be updated.',
+					workInProgressFiberNode
+				);
+			}
+			return updateFunctionComponent(workInProgressFiberNode);
 		case HostText:
 			return null;
 		default:
@@ -31,6 +45,12 @@ export const beginWork = (
 	}
 	return null;
 };
+
+function updateFunctionComponent(workInProgressFiberNode: FiberNode) {
+	const nextChild = renderWithHooks(workInProgressFiberNode);
+	reconcilerChildren(workInProgressFiberNode, nextChild);
+	return workInProgressFiberNode.child;
+}
 
 // HostRoot; ReactDom.render()挂载的根节点
 function updateHostRoot(workInProgressFiberNode: FiberNode) {
