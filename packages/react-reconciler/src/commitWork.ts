@@ -104,7 +104,7 @@ function appendPlacementNodeIntoContainer(
 ) {
 	// 传进来的fiber不一定是原生DOM，所以需要向下遍历，找到原生DOM节点
 	if (finishedWork.tag === HostComponent || finishedWork.tag === HostText) {
-		appendChildToContainer(finishedWork.stateNode, hostParent);
+		appendChildToContainer(hostParent, finishedWork.stateNode);
 		return;
 	}
 

@@ -10,6 +10,11 @@ import { HostRoot } from './workTags';
 // 指向当前正在工作的节点
 let workInProgress: FiberNode | null = null;
 
+/**
+ * 初始化给定根节点的新堆栈。
+ *
+ * @param {FiberRootNode} root - 准备堆栈的根节点。
+ */
 function prepareFreshStack(root: FiberRootNode) {
 	workInProgress = createWorkInProgress(root.current, {});
 }
@@ -118,7 +123,7 @@ function commitRoot(root: FiberRootNode) {
 
 /**
  * 查找给定fiber节点的根节点。
- *
+ * 即tag为HostRoot的节点， HostRootFiber
  * @param {FiberNode} fiber - 要开始搜索的纤维节点。
  * @return {Node | null} - 如果找到则返回根节点即FiberRootNode，否则返回null。
  */
