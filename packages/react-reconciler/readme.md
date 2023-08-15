@@ -1,4 +1,20 @@
-# reconciler的工作方式
+# reconciler
+
+## React三种基础的节点类型
+
+- React Element 即createElement方法的返回值
+- React Component 开发者可以在React中定义的组件，有函数式和class类型
+- FiberNode 组成Fiber架构的节点类型
+
+## 双缓存机制
+
+将数据保存在缓存区再替换的技术称为双缓存。
+
+个人理解：
+因为React 的优先级机制，渲染并不一定会发生在虚拟DOM构建完成之后，即在构建的过程中就会发生渲染逻辑。有了双缓存，在一次虚拟DOM未构建完成之前发生的渲染可以使用之前的DOM树，
+从而避免导致用户看到**闪烁，不完全**的页面结构一部分一部分的显示出来。
+
+## reconciler的工作方式
 
 对于同一个节点，比较其ReactElement与 fiberNode. 生成子fiberNode。井根据比较的结果生成不同标记（插入、删除、移动…），对应不同宿主环境APl的执行。
 

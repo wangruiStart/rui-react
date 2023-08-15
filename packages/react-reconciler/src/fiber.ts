@@ -7,9 +7,11 @@ import { NoFlags, Flags } from './fiberFlags';
 export class FiberNode {
 	tag: WorkTag;
 	key: Key;
-	// 如果是HostComponent <div></div> 则，stateNode保存的就是div这个DOM
+	// 当前FiberNode对应的元素，比如 如果是HostComponent <div></div> 则，stateNode保存的就是div这个DOM
 	stateNode: any;
 	// 如果是function component则tag是FunctionComponent，type则是 function本身 () => {};
+	// 如果是ClassComponent, 指class
+	// 如果是HostComponent, 指DOM tagName 小写形式
 	type: any;
 
 	// 构成树状结构的属性
@@ -62,6 +64,10 @@ export class FiberNode {
 // ReactDom.createRoot构建的根节点。其
 // current指针指向hostRootFiber。同时hostRootFiber的stateNode指向FiberRootNode
 // ReactDom.createRoot(rootElement).render(<App />)
+// 负责管理应用的全局：
+//  1. current Fiber Tree 与workInProgress Fiber Tree之间的切换
+//  2. 应用中任务的过期时间
+//  3. 应用的任务调度信息
 export class FiberRootNode {
 	container: Container; // 宿主环境挂在的节点。即createRoot的参数
 	current: FiberNode;
