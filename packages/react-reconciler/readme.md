@@ -231,3 +231,24 @@ FC的工作同样植根于
 
 - beginWork
 - completeWork
+
+## 8. 实现useState
+
+hook脱离FC上下文就是普通函数。如果让他拥有感知上下文环境的能力?
+
+比如说：
+
+- hook如何知道在宁一个hook的上下文环境内执行
+
+  ```jsx
+  function App() {
+   useEffect(() => {
+    useState(0);
+   });
+  }
+  ```
+
+- hook怎么知道当前是mount还是update？
+
+解决方案：
+在不同上下文中调用的hook不是同一个函数
