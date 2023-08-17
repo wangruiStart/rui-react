@@ -2,7 +2,7 @@
 	"name": "react",
 	"version": "1.0.0",
 	"description": "react通用方法库",
-	"module": "index.js",
+	"module": "index.ts",
 	"keywords": [],
 	"dependencies": {
 		"shared": "workspace:*"

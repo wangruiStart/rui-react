@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
 function App() {
+	const [num, setNum] = useState(9990);
+
 	return (
-		<div>
-			<Child />
+		<div onClick={() => setNum(89989789)}>
+			{num}
+			{/* <Child /> */}
 		</div>
 	);
 }

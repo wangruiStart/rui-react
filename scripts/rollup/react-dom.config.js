@@ -6,7 +6,8 @@ import {
 	getBaseRollupPlugins
 } from './utils';
 
-const { name, module, description, version } = getPackageJSON('react-dom');
+const { name, module, description, version, peerDependencies } =
+	getPackageJSON('react-dom');
 // 包的路径
 const pkgPath = resolvePackagePaths(name, false);
 // 产物的路径
@@ -28,6 +29,7 @@ export default [
 				format: 'umd'
 			}
 		],
+		external: [...Object.keys(peerDependencies)],
 		plugins: [
 			...getBaseRollupPlugins(),
 			// 需要一个类似webpack中的resolve alias功能
