@@ -68,8 +68,8 @@ export const jsx = (type: ElementType, config: any, ...children: any[]) => {
 				props.children = children;
 			}
 		}
-		return ReactElement(type, key, ref, props);
 	}
+	return ReactElement(type, key, ref, props);
 };
 
 export const jsxDEV = (type: ElementType, config: any) => {
