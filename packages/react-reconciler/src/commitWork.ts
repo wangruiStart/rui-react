@@ -1,7 +1,23 @@
-import { Container, appendChildToContainer } from 'hostConfig';
+import {
+	Container,
+	appendChildToContainer,
+	commitUpdate,
+	removeChild
+} from 'hostConfig';
 import { FiberNode, FiberRootNode } from './fiber';
-import { MutationMask, NoFlags, Placement } from './fiberFlags';
-import { HostComponent, HostRoot, HostText } from './workTags';
+import {
+	ChildDeletion,
+	MutationMask,
+	NoFlags,
+	Placement,
+	Update
+} from './fiberFlags';
+import {
+	FunctionComponent,
+	HostComponent,
+	HostRoot,
+	HostText
+} from './workTags';
 
 let nextEffect: FiberNode | null = null;
 
@@ -51,7 +67,109 @@ function commitMutationEffectsOnFiber(finishedWork: FiberNode) {
 
 	// Update flags
 
+	if ((flags & Update) !== NoFlags) {
+		// 此时存在Update标记，即是插入更新操作
+		commitUpdate(finishedWork);
+		// 将Update从flags中移除
+		finishedWork.flags &= ~Update;
+	}
+
 	// ChildDeletion flags
+	if ((flags & ChildDeletion) !== NoFlags) {
+		// 此时存在ChildDeletion标记，即是删除操作
+		// deletions: 当前fiberNode下所有需要删除的fiberNode;
+		const deletions = finishedWork.deletions;
+		if (deletions !== null) {
+			deletions.forEach((childFiberToDelete) => {
+				commitDeletion(childFiberToDelete);
+			});
+		}
+		// 将Update从flags中移除
+		finishedWork.flags &= ~ChildDeletion;
+	}
+}
+
+// <div>
+// 	<App />
+// 	1233
+// 	<p>
+// 		<ChildComponent />
+// 	</p>
+// </div>
+// 对于不同类型的子树
+// FC：需要处理useEffect unmount执行，解绑ref
+// 对于HostComponent, 需要解绑ref
+// 对于子树的根HostComponent(即上面的最外层div标签), 需要移除DOM,
+function commitDeletion(childFiberToDelete: FiberNode) {
+	let rootHostNode: FiberNode | null = null;
+
+	// 递归子树
+	commitNestedComponent(childFiberToDelete, (unmountFiber) => {
+		switch (unmountFiber.tag) {
+			case HostComponent:
+				if (rootHostNode === null) {
+					rootHostNode = unmountFiber;
+				}
+				break;
+			// TODO 解绑ref
+
+			case HostText:
+				if (rootHostNode === null) {
+					rootHostNode = unmountFiber;
+				}
+				return;
+			case FunctionComponent:
+				// TODO useEffect unmount执行
+				break;
+			default:
+				if (__DEV__) {
+					console.warn('未处理的unmount类型', unmountFiber);
+				}
+		}
+	});
+	// 移除rootHostNode的DOM
+
+	if (rootHostNode !== null) {
+		const hostParent = getHostParent(childFiberToDelete);
+		if (hostParent !== null) {
+			removeChild(rootHostNode, hostParent);
+		}
+	}
+	childFiberToDelete.return = null;
+	childFiberToDelete.child = null;
+
+	/**
+	 * 递归子树
+	 * @param root 递归子树的根节点
+	 * @param onCommitUnmount  递归到的当前fiber的回调函数
+	 */
+	function commitNestedComponent(
+		root: FiberNode,
+		onCommitUnmount: (fiber: FiberNode) => void
+	) {
+		let node = root;
+		while (true) {
+			onCommitUnmount(node);
+			if (node.child !== null) {
+				node.child.return = node;
+				node = node.child;
+				continue;
+			}
+			if (node === root) {
+				// 这是终止条件
+				return;
+			}
+			while (node.sibling === null) {
+				if (node.return === null || node.return === root) {
+					return;
+				}
+				// 向上归
+				node = node.return;
+			}
+			node.sibling.return = node.return;
+			node = node.sibling;
+		}
+	}
 }
 
 // 执行插入操作

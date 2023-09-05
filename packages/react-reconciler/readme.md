@@ -59,8 +59,8 @@ Deletion Placement
 
 ```jsx
 <Card>
- <h3>你好</h3>
- <p>p</p>
+	<h3>你好</h3>
+	<p>p</p>
 </Card>
 ```
 
@@ -117,7 +117,7 @@ Deletion Placement
 
 ```jsx
 <A>
- <B>你好</B>
+	<B>你好</B>
 </A>
 ```
 
@@ -164,8 +164,8 @@ pnpm i -d -w @rollup/plugin-replace
 
 ```html
 <div>
- <p>练习时长</p>
- <span>两年半</span>
+	<p>练习时长</p>
+	<span>两年半</span>
 </div>
 ```
 
@@ -212,9 +212,9 @@ react 内部分为三个阶段
 
 ```jsx
 <App>
- <div>
-  <span>这是文字内容</span>
- </div>
+	<div>
+		<span>这是文字内容</span>
+	</div>
 </App>
 ```
 
@@ -242,9 +242,9 @@ hook脱离FC上下文就是普通函数。如果让他拥有感知上下文环�
 
   ```jsx
   function App() {
-   useEffect(() => {
-    useState(0);
-   });
+  	useEffect(() => {
+  		useState(0);
+  	});
   }
   ```
 
@@ -252,3 +252,46 @@ hook脱离FC上下文就是普通函数。如果让他拥有感知上下文环�
 
 解决方案：
 在不同上下文中调用的hook不是同一个函数
+
+## 初探Update流程
+
+### update与mount的区别
+
+对于beginWork:
+
+- 需要处理childDeletion的情况
+- 需要处理节点移动的情况 (abc-bca)
+
+对于completeWork:
+
+- 需要处理HostText内容更新的情况
+- 需要处理HostComponent属性变化的情况
+
+对于commitWork:
+
+- 对于ChildDeletion, 需要遍历被删除的子树
+- 对于useState, 需要实现相对于mountState的updateState
+
+### beginWork流程
+
+处理流程：
+
+1. 比较是否可以复用current Fiber
+   a. 比较key, 如果key不同，不能复用
+   b. 比较type, 如果type不同，不能复用
+   c. 如果key和type 都相同，则可复用
+2. 不能复用，则创建新的fiberNode。
+
+注意: **对于同一个fiberNode,即使反复更新，current和workInProgress这两个fiber树也会重复使用**
+
+### completeWork流程
+
+主要处理标记Update的情况
+
+### commitWork流程
+
+对于标记ChildDeletion的子树，由于子树中:
+
+- 对于FC，需要处理useEffect unmount执行、解绑ref
+- 对于HostComponent, 需要解绑ref
+- 对于子树的 根HostComponent, 需要解绑ref.

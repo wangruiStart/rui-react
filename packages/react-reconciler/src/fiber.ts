@@ -29,6 +29,8 @@ export class FiberNode {
 	pendingProps: Props;
 	// 工作之后的props
 	memoizedProps: Props | null;
+
+	// 保存的是hooks的链表
 	memoizedState: any;
 	// 指向另一科fiberNode树对应的节点
 	alternate: FiberNode | null;
@@ -37,6 +39,9 @@ export class FiberNode {
 
 	flags: Flags;
 	subtreeFlags: Flags;
+
+	// @param 当前fiberNode下所有需要删除的fiberNode
+	deletions: FiberNode[] | null;
 
 	constructor(tag: WorkTag, pendingProps: Props, key: Key) {
 		this.tag = tag;
@@ -58,6 +63,8 @@ export class FiberNode {
 		this.alternate = null;
 		this.flags = NoFlags;
 		this.subtreeFlags = NoFlags;
+
+		this.deletions = null;
 	}
 }
 
@@ -99,6 +106,7 @@ export const createWorkInProgress = (
 		workInProgressNode.pendingProps = pendingProps;
 		workInProgressNode.flags = NoFlags;
 		workInProgressNode.subtreeFlags = NoFlags;
+		workInProgressNode.deletions = null;
 	}
 
 	workInProgressNode.type = current.type;
