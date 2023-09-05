@@ -5,7 +5,8 @@ import {
 	UpdateQueue,
 	createUpdate,
 	createUpdateQueue,
-	enqueueUpdate
+	enqueueUpdate,
+	processUpdateQueue
 } from './updateQueue';
 import { scheduleUpdateOnFiber } from './workLoop';
 import { Action } from 'shared/ReactTypes';
@@ -52,6 +53,8 @@ export function renderWithHooks(workInProgressFiberNode: FiberNode) {
 
 	// 重置操作
 	currentlyRenderingFiber = null;
+	workInProgressHook = null;
+	currentHook = null;
 	return children;
 }
 
@@ -63,31 +66,20 @@ const HooksDispatcherOnUpdate: Dispatcher = {
 	useState: updateState
 };
 
-function updateState<State>(
-	initialState: State | (() => State)
-): [State, Dispatch<State>] {
+function updateState<State>(): [State, Dispatch<State>] {
 	// 找到当前useState对应的hook数据
 	const hook = updateWorkInProgressHook();
 
 	// 计算新state的逻辑
-	// const queue = hook.updateQueue as UpdateQueue<State>;
+	const queue = hook.updateQueue as UpdateQueue<State>;
+	const pending = queue.shared.pending;
 
-	let memoizedState = null;
-	if (initialState instanceof Function) {
-		memoizedState = initialState();
-	} else {
-		memoizedState = initialState;
+	if (pending !== null) {
+		const { memoizedState } = processUpdateQueue(hook.memoizedState, pending);
+		hook.memoizedState = memoizedState;
 	}
 
-	const queue = createUpdateQueue<State>();
-	hook.updateQueue = queue;
-	hook.memoizedState = memoizedState;
-
-	// @ts-ignore
-	const dispatch = dispatchSetState.bind(null, currentlyRenderingFiber, queue);
-	queue.dispatch = dispatch;
-
-	return [memoizedState, dispatch];
+	return [hook.memoizedState, queue.dispatch as Dispatch<State>];
 }
 
 function mountState<State>(
