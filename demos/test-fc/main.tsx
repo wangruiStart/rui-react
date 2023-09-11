@@ -3,15 +3,7 @@ import ReactDOM from 'react-dom/client';
 
 function App() {
 	const [num, setNum] = useState(9990);
-	window.setNum = setNum;
-	return num === 3 ? (
-		<Child />
-	) : (
-		<div onClick={() => setNum(89989789)}>
-			{num}
-			{/* <Child /> */}
-		</div>
-	);
+	return <div onClick={() => setNum(89989789)}>{num}</div>;
 }
 
 function Child() {
